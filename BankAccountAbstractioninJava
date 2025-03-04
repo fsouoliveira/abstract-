@@ -1,0 +1,104 @@
+// Classe base (superclasse)
+abstract class Conta {
+    private String numeroConta;
+    private double saldo;
+
+    public Conta(String numeroConta, double saldoInicial) {
+        this.numeroConta = numeroConta;
+        this.saldo = saldoInicial;
+    }
+
+    public String getNumeroConta() {
+        return numeroConta;
+    }
+
+    public double getSaldo() {
+        return saldo;
+    }
+
+    protected void setSaldo(double saldo) {
+        this.saldo = saldo;
+    }
+
+    public void depositar(double valor) {
+        if (valor > 0) {
+            saldo += valor;
+            System.out.println("Depósito de " + valor + " realizado. Novo saldo: " + saldo);
+        } else {
+            System.out.println("Valor de depósito inválido.");
+        }
+    }
+
+    public void sacar(double valor) {
+        if (valor > 0 && valor <= saldo) {
+            saldo -= valor;
+            System.out.println("Saque de " + valor + " realizado. Novo saldo: " + saldo);
+        } else {
+            System.out.println("Saldo insuficiente ou valor de saque inválido.");
+        }
+    }
+
+    public void transferir(Conta destino, double valor) {
+        if (valor > 0 && valor <= saldo) {
+            this.sacar(valor);
+            destino.depositar(valor);
+            System.out.println("Transferência de " + valor + " para conta " + destino.getNumeroConta() + " realizada.");
+        } else {
+            System.out.println("Transferência não realizada. Saldo insuficiente ou valor inválido.");
+        }
+    }
+}
+
+// Classe derivada (subclasse)
+class ContaCorrente extends Conta {
+    private double limiteChequeEspecial;
+
+    public ContaCorrente(String numeroConta, double saldoInicial, double limiteChequeEspecial) {
+        super(numeroConta, saldoInicial);
+        this.limiteChequeEspecial = limiteChequeEspecial;
+    }
+
+    @Override
+    public void sacar(double valor) {
+        double saldoDisponivel = getSaldo() + limiteChequeEspecial;
+        if (valor > 0 && valor <= saldoDisponivel) {
+            setSaldo(getSaldo() - valor);
+            System.out.println("Saque de " + valor + " realizado. Novo saldo: " + getSaldo());
+        } else {
+            System.out.println("Saldo insuficiente ou valor de saque inválido.");
+        }
+    }
+}
+
+// Classe derivada (subclasse)
+class ContaPoupanca extends Conta {
+    private double taxaJuros;
+
+    public ContaPoupanca(String numeroConta, double saldoInicial, double taxaJuros) {
+        super(numeroConta, saldoInicial);
+        this.taxaJuros = taxaJuros;
+    }
+
+    public void aplicarJuros() {
+        double juros = getSaldo() * taxaJuros;
+        depositar(juros);
+        System.out.println("Juros de " + juros + " aplicados. Novo saldo: " + getSaldo());
+    }
+}
+
+// Exemplo de uso
+public class Banco {
+    public static void main(String[] args) {
+        ContaCorrente cc = new ContaCorrente("12345", 1000, 500);
+        ContaPoupanca cp = new ContaPoupanca("67890", 2000, 0.05);
+
+        cc.depositar(500);
+        cc.sacar(200);
+        cc.transferir(cp, 300);
+
+        cp.aplicarJuros();
+
+        System.out.println("Saldo Conta Corrente: " + cc.getSaldo());
+        System.out.println("Saldo Conta Poupança: " + cp.getSaldo());
+    }
+}
